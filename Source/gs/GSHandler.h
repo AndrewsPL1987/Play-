@@ -824,6 +824,11 @@ public:
 	static void RegisterPreferences();
 	void NotifyPreferencesChanged();
 
+	// Default no-op; CGSH_OpenGL implements the sprite rounding hack (vertical line seams fix).
+	virtual void SetSpriteRoundingHackEnabled(bool enabled)
+	{
+	}
+
 	void SetIntc(CINTC*);
 	void Reset();
 	virtual void SetPresentationParams(const PRESENTATION_PARAMS&);

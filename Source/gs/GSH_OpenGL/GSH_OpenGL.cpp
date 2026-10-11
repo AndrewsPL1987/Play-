@@ -327,6 +327,14 @@ void CGSH_OpenGL::CheckExtensions()
 	}
 }
 
+void CGSH_OpenGL::SetSpriteRoundingHackEnabled(bool enabled)
+{
+	SendGSCall(
+	    [this, enabled]() {
+		    m_spriteRoundingHackEnabled = enabled;
+	    });
+}
+
 Framework::OpenGl::CBuffer CGSH_OpenGL::GeneratePresentVertexBuffer()
 {
 	auto buffer = Framework::OpenGl::CBuffer::Create();
@@ -1641,6 +1649,16 @@ void CGSH_OpenGL::Prim_Sprite()
 
 	nY1 -= m_nPrimOfsY;
 	nY2 -= m_nPrimOfsY;
+
+	// Sprite boundary rounding hack (from PR #1600): fixes vertical line seams between
+	// adjacent sprites in Namco System 246 titles. Opt-in per arcade title.
+	if(m_spriteRoundingHackEnabled)
+	{
+		nX1 = round(nX1);
+		nY1 = round(nY1);
+		nX2 = round(nX2);
+		nY2 = round(nY2);
+	}
 
 	float nS[2] = {0, 0};
 	float nT[2] = {0, 0};
