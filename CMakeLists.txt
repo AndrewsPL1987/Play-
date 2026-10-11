@@ -91,6 +91,7 @@ endif()
 
 add_subdirectory(tools/NamcoSys147NANDTools)
 
-if(BUILD_PSFPLAYER)
+# Arcade cabinet branch: PsfPlayer of this (May 2026) source does not link with the newer CI flag -DBUILD_PSFPLAYER=yes; not needed.
+if(FALSE)
 	add_subdirectory(tools/PsfPlayer)
-endif(BUILD_PSFPLAYER)
+endif()
