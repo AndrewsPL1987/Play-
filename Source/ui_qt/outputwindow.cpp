@@ -1,13 +1,22 @@
 #include "outputwindow.h"
 #include <QResizeEvent>
 #include <QTimer>
+#include <cstdlib>
+
+// Arcade cabinet: PLAY_GUN_CROSSHAIR=1 (set by the launcher for light-gun games) keeps a crosshair cursor visible
+// in fullscreen instead of hiding it, so trackball players can see where they aim.
+static bool GunCrosshairEnabled()
+{
+	const char* value = getenv("PLAY_GUN_CROSSHAIR");
+	return value && (value[0] == '1');
+}
 
 OutputWindow::OutputWindow(QWindow* parent)
     : QWindow(parent)
 {
 	m_fullScreenCursorTimer = new QTimer(this);
 	m_fullScreenCursorTimer->setSingleShot(true);
-	connect(m_fullScreenCursorTimer, &QTimer::timeout, [this]() { setCursor(Qt::BlankCursor); });
+	connect(m_fullScreenCursorTimer, &QTimer::timeout, [this]() { setCursor(GunCrosshairEnabled() ? Qt::CrossCursor : Qt::BlankCursor); });
 	connect(this, SIGNAL(activeChanged()), this, SLOT(activeStateChanged()));
 }
 
@@ -15,14 +24,14 @@ void OutputWindow::ShowFullScreenCursor()
 {
 	m_fullScreenCursorTimer->start(2000);
 	m_fullScreenCursorActive = true;
-	setCursor(Qt::ArrowCursor);
+	setCursor(GunCrosshairEnabled() ? Qt::CrossCursor : Qt::ArrowCursor);
 }
 
 void OutputWindow::DismissFullScreenCursor()
 {
 	m_fullScreenCursorTimer->stop();
 	m_fullScreenCursorActive = false;
-	setCursor(Qt::ArrowCursor);
+	setCursor(GunCrosshairEnabled() ? Qt::CrossCursor : Qt::ArrowCursor);
 }
 
 void OutputWindow::keyPressEvent(QKeyEvent* ev)
