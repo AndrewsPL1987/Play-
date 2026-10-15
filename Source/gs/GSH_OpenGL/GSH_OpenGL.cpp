@@ -2,6 +2,7 @@
 #include <assert.h>
 #include <cstring>
 #include <math.h>
+#include <cstdlib>
 
 #include "AppConfig.h"
 #include "../GsPixelFormats.h"
@@ -1654,10 +1655,34 @@ void CGSH_OpenGL::Prim_Sprite()
 	// adjacent sprites in Namco System 246 titles. Opt-in per arcade title.
 	if(m_spriteRoundingHackEnabled)
 	{
-		nX1 = round(nX1);
-		nY1 = round(nY1);
-		nX2 = round(nX2);
-		nY2 = round(nY2);
+		// PLAY_SPRITE_MODE (arcade cabinet experiments): 0 round x+y (PR #1600), 1 round x only, 2 round y only,
+		// 3 round + grow the sprite by 0.5 px right/down, 4 floor start / ceil end, 5 round + grow by 1 px.
+		static const int spriteMode = []() {
+			const char* value = getenv("PLAY_SPRITE_MODE");
+			return value ? atoi(value) : 0;
+		}();
+		switch(spriteMode)
+		{
+		default:
+		case 0:
+			nX1 = round(nX1); nY1 = round(nY1); nX2 = round(nX2); nY2 = round(nY2);
+			break;
+		case 1:
+			nX1 = round(nX1); nX2 = round(nX2);
+			break;
+		case 2:
+			nY1 = round(nY1); nY2 = round(nY2);
+			break;
+		case 3:
+			nX1 = round(nX1); nY1 = round(nY1); nX2 = round(nX2) + 0.5f; nY2 = round(nY2) + 0.5f;
+			break;
+		case 4:
+			nX1 = floor(nX1); nY1 = floor(nY1); nX2 = ceil(nX2); nY2 = ceil(nY2);
+			break;
+		case 5:
+			nX1 = round(nX1); nY1 = round(nY1); nX2 = round(nX2) + 1.0f; nY2 = round(nY2) + 1.0f;
+			break;
+		}
 	}
 
 	float nS[2] = {0, 0};
