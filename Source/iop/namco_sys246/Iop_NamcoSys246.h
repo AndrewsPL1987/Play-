@@ -46,6 +46,7 @@ namespace Iop
 			void SetBoardId(std::string);
 			void SetButton(unsigned int, PS2::CControllerInfo::BUTTON);
 			void SetScreenPosXform(const std::array<float, 4>&);
+			void SetCoinButtonCountsCredits(bool);
 
 			//CPadInterface
 			void SetButtonState(unsigned int, PS2::CControllerInfo::BUTTON, bool, uint8*) override;
@@ -156,6 +157,7 @@ namespace Iop
 			uint16 m_jvsGaz = 0x0;
 			uint16 m_jvsBrake = 0x0;
 			uint16 m_coin1 = 0;
+			bool m_coinButtonCountsCredits = false;
 			uint16 m_coin2 = 0;
 			uint8 m_testButtonState = 0;
 			uint8 m_counter = 0;

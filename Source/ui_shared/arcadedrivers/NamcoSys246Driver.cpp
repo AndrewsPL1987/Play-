@@ -109,6 +109,7 @@ void CNamcoSys246Driver::PrepareEnvironment(CPS2VM* virtualMachine, const ARCADE
 			iopBios->RegisterModule(namcoArcadeModule);
 			iopBios->RegisterHleModuleReplacement("rom0:DAEMON", namcoArcadeModule);
 			virtualMachine->m_pad->InsertListener(namcoArcadeModule.get());
+			namcoArcadeModule->SetCoinButtonCountsCredits(def.id == "zoidsinf");
 			for(const auto& buttonDefPair : def.buttons)
 			{
 				const auto& buttonPair = buttonDefPair.second;

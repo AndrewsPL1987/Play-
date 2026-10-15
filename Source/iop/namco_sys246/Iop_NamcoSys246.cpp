@@ -547,6 +547,11 @@ void CSys246::SetButton(unsigned int buttonIndex, PS2::CControllerInfo::BUTTON b
 	m_jvsButtonBits[buttonValue] = (1 << buttonIndex);
 }
 
+void CSys246::SetCoinButtonCountsCredits(bool enabled)
+{
+	m_coinButtonCountsCredits = enabled;
+}
+
 void CSys246::SetScreenPosXform(const std::array<float, 4>& screenPosXform)
 {
 	m_screenPosXform = screenPosXform;
@@ -568,6 +573,12 @@ void CSys246::SetButtonState(unsigned int padNumber, PS2::CControllerInfo::BUTTO
 
 		if(padNumber == 0)
 		{
+			// Arcade cabinet patch: games that poll the JVS coin counter (e.g. Zoids Infinity) never get a coin from
+			// the Select switch bit; count the Select/Coin press into coin slot 1 for those games (opt-in per game).
+			if(m_coinButtonCountsCredits && pressed && (button == PS2::CControllerInfo::SELECT))
+			{
+				m_coin1++;
+			}
 			m_jvsSystemButtonState &= ~g_defaultJvsSystemButtonBits[button];
 			m_jvsSystemButtonState |= (pressed ? g_defaultJvsSystemButtonBits[button] : 0);
 
