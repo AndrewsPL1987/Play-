@@ -1,3 +1,4 @@
+#include <cstdlib>
 #include "ArcadeUtils.h"
 #include <nlohmann/json.hpp>
 #include "string_format.h"
@@ -356,11 +357,30 @@ void ArcadeUtils::BootArcadeMachine(CPS2VM* virtualMachine, const fs::path& arca
 	driver->Launch(virtualMachine, def);
 
 	{
-		bool spriteRoundingHackEnabled =
-		    (def.id.rfind("tekken4", 0) == 0) ||
-		    (def.id.rfind("tekken5", 0) == 0) ||
-		    (def.id.rfind("soulclb", 0) == 0) ||
-		    (def.id.rfind("taiko", 0) == 0);
+		// Titles that get the sprite rounding hack. PLAY_SPRITE_ROUNDING_IDS overrides the built-in list:
+		// comma separated id prefixes, or "all" (arcade cabinet experiments).
+		std::string roundingIds = "tekken4,tekken5,soulclb,taiko,motogp";
+		if(const char* envIds = getenv("PLAY_SPRITE_ROUNDING_IDS"))
+		{
+			roundingIds = envIds;
+		}
+		bool spriteRoundingHackEnabled = (roundingIds == "all");
+		if(!spriteRoundingHackEnabled)
+		{
+			size_t start = 0;
+			while(start <= roundingIds.size())
+			{
+				size_t end = roundingIds.find(',', start);
+				if(end == std::string::npos) end = roundingIds.size();
+				auto prefix = roundingIds.substr(start, end - start);
+				if(!prefix.empty() && (def.id.rfind(prefix, 0) == 0))
+				{
+					spriteRoundingHackEnabled = true;
+					break;
+				}
+				start = end + 1;
+			}
+		}
 
 		if(auto gsHandler = virtualMachine->GetGSHandler())
 		{
